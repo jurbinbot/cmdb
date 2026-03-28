@@ -60,8 +60,8 @@
 - [x] Commit: supporting APIs
 
 ### Milestone 1.6 — Seed Data
-- [ ] Create seed script with realistic sample data (5+ apps, 3 environments, teams, servers, deployments)
-- [ ] Commit: seed data
+- [x] Create seed script with realistic sample data (5+ apps, 3 environments, teams, servers, deployments)
+- [x] Commit: seed data
 
 ### Milestone 1.7 — Frontend Foundation
 - [ ] Scaffold React + Vite project
