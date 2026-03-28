@@ -12,17 +12,17 @@
 - [x] Initialize project structure (backend/, frontend/, docs/)
 - [x] Add .gitignore, README.md, STRUCTURE.md
 - [x] Add IMPLEMENTATION_PLAN.md
-- [ ] First commit pushed to GitHub
+- [x] First commit pushed to GitHub
 
 ### Milestone 1.2 — Backend Foundation
-- [ ] Set up FastAPI project with uvicorn
-- [ ] Configure pydantic-settings and .env loading
-- [ ] Set up SQLAlchemy with PostgreSQL (asyncpg)
-- [ ] Set up Alembic for migrations
-- [ ] Create initial migration (empty)
-- [ ] Bind to 0.0.0.0:8000, enable CORS for frontend
-- [ ] Add /health and /api/status endpoints
-- [ ] Commit: backend foundation
+- [x] Set up FastAPI project with uvicorn
+- [x] Configure pydantic-settings and .env loading
+- [x] Set up SQLAlchemy with PostgreSQL (asyncpg)
+- [x] Set up Alembic for migrations
+- [x] Create initial migration (empty)
+- [x] Bind to 0.0.0.0:8000, enable CORS for frontend
+- [x] Add /health and /api/status endpoints
+- [x] Commit: backend foundation
 
 ### Milestone 1.3 — Core Data Models
 - [ ] Application model (id, name, description, type, status, tier, repo_url, docs_url, created_at, updated_at)
