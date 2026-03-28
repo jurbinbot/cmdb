@@ -40,14 +40,14 @@
 - [x] Commit: core data models
 
 ### Milestone 1.4 — Core API (Applications)
-- [ ] Pydantic schemas for Application (Create, Update, Response)
-- [ ] GET /api/applications — list with filters (status, type, team)
-- [ ] GET /api/applications/{id} — detail with deployments, endpoints, ownership
-- [ ] POST /api/applications — create
-- [ ] PUT /api/applications/{id} — update
-- [ ] DELETE /api/applications/{id} — soft delete
-- [ ] Audit log middleware (auto-log all mutations)
-- [ ] Commit: applications API
+- [x] Pydantic schemas for Application (Create, Update, Response)
+- [x] GET /api/applications — list with filters (status, type, team)
+- [x] GET /api/applications/{id} — detail with deployments, endpoints, ownership
+- [x] POST /api/applications — create
+- [x] PUT /api/applications/{id} — update
+- [x] DELETE /api/applications/{id} — soft delete
+- [x] Audit log middleware (auto-log all mutations)
+- [x] Commit: applications API
 
 ### Milestone 1.5 — Supporting APIs
 - [ ] Environments CRUD (/api/environments)
