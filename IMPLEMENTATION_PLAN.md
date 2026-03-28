@@ -50,14 +50,14 @@
 - [x] Commit: applications API
 
 ### Milestone 1.5 — Supporting APIs
-- [ ] Environments CRUD (/api/environments)
-- [ ] Deployments CRUD (/api/deployments, /api/applications/{id}/deployments)
-- [ ] Servers CRUD (/api/servers)
-- [ ] Database instances CRUD (/api/databases)
-- [ ] Endpoints CRUD (/api/endpoints)
-- [ ] Teams CRUD (/api/teams)
-- [ ] Contacts CRUD (/api/contacts)
-- [ ] Commit: supporting APIs
+- [x] Environments CRUD (/api/environments)
+- [x] Deployments CRUD (/api/deployments, /api/applications/{id}/deployments)
+- [x] Servers CRUD (/api/servers)
+- [x] Database instances CRUD (/api/databases)
+- [x] Endpoints CRUD (/api/endpoints)
+- [x] Teams CRUD (/api/teams)
+- [x] Contacts CRUD (/api/contacts)
+- [x] Commit: supporting APIs
 
 ### Milestone 1.6 — Seed Data
 - [ ] Create seed script with realistic sample data (5+ apps, 3 environments, teams, servers, deployments)
