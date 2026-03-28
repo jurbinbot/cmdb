@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
-from app.routers import applications, environments, deployments
+from app.routers import applications, environments, deployments, servers, databases, endpoints, teams, relationships, audit
 
 app = FastAPI(title="CMDB API")
 
@@ -16,6 +16,12 @@ app.add_middleware(
 app.include_router(applications.router)
 app.include_router(environments.router)
 app.include_router(deployments.router)
+app.include_router(servers.router)
+app.include_router(databases.router)
+app.include_router(endpoints.router)
+app.include_router(teams.router)
+app.include_router(relationships.router)
+app.include_router(audit.router)
 
 
 @app.get("/health")
@@ -24,7 +30,7 @@ async def health():
 
 
 @app.get("/api/status")
-async def status():
+async def status_check():
     return {"status": "ok", "version": "0.1.0"}
 
 
