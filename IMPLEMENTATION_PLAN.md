@@ -79,11 +79,11 @@
 - [x] Commit: application catalog UI
 
 ### Milestone 1.9 — Supporting Entity UIs
-- [ ] Environments page (list + CRUD)
-- [ ] Servers page (list + CRUD)
-- [ ] Teams & Contacts page (list + CRUD)
-- [ ] Dashboard page (summary stats: app count by status/type, recent deployments, recent audit events)
-- [ ] Commit: supporting entity UIs
+- [x] Environments page (list + CRUD)
+- [x] Servers page (list + CRUD)
+- [x] Teams & Contacts page (list + CRUD)
+- [x] Dashboard page (summary stats: app count by status/type, recent deployments, recent audit events)
+- [x] Commit: supporting entity UIs
 
 ---
 
