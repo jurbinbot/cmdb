@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .config import settings
-from .routers import applications, environments, deployments
+from .routers import applications, environments, deployments, servers, databases, endpoints, teams, relationships, audit
 
 app = FastAPI(title="CMDB API", version="0.1.0")
 
@@ -16,6 +16,12 @@ app.add_middleware(
 app.include_router(applications.router)
 app.include_router(environments.router)
 app.include_router(deployments.router)
+app.include_router(servers.router)
+app.include_router(databases.router)
+app.include_router(endpoints.router)
+app.include_router(teams.router)
+app.include_router(relationships.router)
+app.include_router(audit.router)
 
 
 @app.get("/health")
