@@ -15,53 +15,53 @@
 - [ ] First commit pushed to GitHub
 
 ### Milestone 1.2 — Backend Foundation
-- [ ] Set up FastAPI project with uvicorn
-- [ ] Configure pydantic-settings and .env loading
-- [ ] Set up SQLAlchemy with PostgreSQL (asyncpg)
-- [ ] Set up Alembic for migrations
-- [ ] Create initial migration (empty)
-- [ ] Bind to 0.0.0.0:8000, enable CORS for frontend
-- [ ] Add /health and /api/status endpoints
-- [ ] Commit: backend foundation
+- [x] Set up FastAPI project with uvicorn
+- [x] Configure pydantic-settings and .env loading
+- [x] Set up SQLAlchemy with PostgreSQL (asyncpg)
+- [x] Set up Alembic for migrations
+- [x] Create initial migration (empty)
+- [x] Bind to 0.0.0.0:8000, enable CORS for frontend
+- [x] Add /health and /api/status endpoints
+- [x] Commit: backend foundation
 
 ### Milestone 1.3 — Core Data Models
-- [ ] Application model (id, name, description, type, status, tier, repo_url, docs_url, created_at, updated_at)
-- [ ] Environment model (id, name, type: dev/staging/prod, description)
-- [ ] Deployment model (id, application_id, environment_id, version, deployed_at, deployed_by, ci_cd_url, notes)
-- [ ] Server model (id, hostname, ip_address, os, environment_id, role, status)
-- [ ] DatabaseInstance model (id, name, type: postgres/mysql/etc, host, port, environment_id)
-- [ ] Endpoint model (id, application_id, url, protocol, environment_id, is_public)
-- [ ] Team model (id, name, slack_channel, email)
-- [ ] Contact model (id, name, email, phone, team_id, role)
-- [ ] ApplicationOwnership model (application_id, team_id, ownership_type: primary/secondary)
-- [ ] CIRelationship model (id, source_ci_type, source_ci_id, target_ci_type, target_ci_id, relationship_type, description)
-- [ ] AuditLog model (id, ci_type, ci_id, action, changed_by, changed_at, before_json, after_json)
-- [ ] Create Alembic migration for all models
-- [ ] Commit: core data models
+- [x] Application model (id, name, description, type, status, tier, repo_url, docs_url, created_at, updated_at)
+- [x] Environment model (id, name, type: dev/staging/prod, description)
+- [x] Deployment model (id, application_id, environment_id, version, deployed_at, deployed_by, ci_cd_url, notes)
+- [x] Server model (id, hostname, ip_address, os, environment_id, role, status)
+- [x] DatabaseInstance model (id, name, type: postgres/mysql/etc, host, port, environment_id)
+- [x] Endpoint model (id, application_id, url, protocol, environment_id, is_public)
+- [x] Team model (id, name, slack_channel, email)
+- [x] Contact model (id, name, email, phone, team_id, role)
+- [x] ApplicationOwnership model (application_id, team_id, ownership_type: primary/secondary)
+- [x] CIRelationship model (id, source_ci_type, source_ci_id, target_ci_type, target_ci_id, relationship_type, description)
+- [x] AuditLog model (id, ci_type, ci_id, action, changed_by, changed_at, before_json, after_json)
+- [x] Create Alembic migration for all models
+- [x] Commit: core data models
 
 ### Milestone 1.4 — Core API (Applications)
-- [ ] Pydantic schemas for Application (Create, Update, Response)
-- [ ] GET /api/applications — list with filters (status, type, team)
-- [ ] GET /api/applications/{id} — detail with deployments, endpoints, ownership
-- [ ] POST /api/applications — create
-- [ ] PUT /api/applications/{id} — update
-- [ ] DELETE /api/applications/{id} — soft delete
-- [ ] Audit log middleware (auto-log all mutations)
-- [ ] Commit: applications API
+- [x] Pydantic schemas for Application (Create, Update, Response)
+- [x] GET /api/applications — list with filters (status, type, team)
+- [x] GET /api/applications/{id} — detail with deployments, endpoints, ownership
+- [x] POST /api/applications — create
+- [x] PUT /api/applications/{id} — update
+- [x] DELETE /api/applications/{id} — soft delete
+- [x] Audit log middleware (auto-log all mutations)
+- [x] Commit: applications API
 
 ### Milestone 1.5 — Supporting APIs
-- [ ] Environments CRUD (/api/environments)
-- [ ] Deployments CRUD (/api/deployments, /api/applications/{id}/deployments)
-- [ ] Servers CRUD (/api/servers)
-- [ ] Database instances CRUD (/api/databases)
-- [ ] Endpoints CRUD (/api/endpoints)
-- [ ] Teams CRUD (/api/teams)
-- [ ] Contacts CRUD (/api/contacts)
-- [ ] Commit: supporting APIs
+- [x] Environments CRUD (/api/environments)
+- [x] Deployments CRUD (/api/deployments, /api/applications/{id}/deployments)
+- [x] Servers CRUD (/api/servers)
+- [x] Database instances CRUD (/api/databases)
+- [x] Endpoints CRUD (/api/endpoints)
+- [x] Teams CRUD (/api/teams)
+- [x] Contacts CRUD (/api/contacts)
+- [x] Commit: supporting APIs
 
 ### Milestone 1.6 — Seed Data
-- [ ] Create seed script with realistic sample data (5+ apps, 3 environments, teams, servers, deployments)
-- [ ] Commit: seed data
+- [x] Create seed script with realistic sample data (5+ apps, 3 environments, teams, servers, deployments)
+- [x] Commit: seed data
 
 ### Milestone 1.7 — Frontend Foundation
 - [ ] Scaffold React + Vite project
