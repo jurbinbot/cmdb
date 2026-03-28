@@ -4,15 +4,27 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, or_
 from app.database import get_db
-from app.models.relationship import CIRelationship
+from app.models.relationship import CIRelationship, RelationshipType
 from app.schemas.relationship import CIRelationshipCreate, CIRelationshipUpdate, CIRelationshipResponse
 
 router = APIRouter(tags=["relationships"])
 
 
 @router.get("/api/relationships", response_model=list[CIRelationshipResponse])
-async def list_relationships(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(CIRelationship))
+async def list_relationships(
+    source_ci_type: Optional[str] = None,
+    target_ci_type: Optional[str] = None,
+    relationship_type: Optional[RelationshipType] = None,
+    db: AsyncSession = Depends(get_db),
+):
+    query = select(CIRelationship)
+    if source_ci_type:
+        query = query.where(CIRelationship.source_ci_type == source_ci_type)
+    if target_ci_type:
+        query = query.where(CIRelationship.target_ci_type == target_ci_type)
+    if relationship_type:
+        query = query.where(CIRelationship.relationship_type == relationship_type)
+    result = await db.execute(query)
     return result.scalars().all()
 
 
