@@ -105,11 +105,11 @@
 - [x] Commit: topology graph UI
 
 ### Milestone 2.3 — Impact Analysis UI
-- [ ] Impact analysis panel on Application detail page
-- [ ] "What depends on this?" — upstream list
-- [ ] "What does this depend on?" — downstream list
-- [ ] Visual impact tree
-- [ ] Commit: impact analysis
+- [x] Impact analysis panel on Application detail page
+- [x] "What depends on this?" — upstream list
+- [x] "What does this depend on?" — downstream list
+- [x] Visual impact tree
+- [x] Commit: impact analysis
 
 ---
 
