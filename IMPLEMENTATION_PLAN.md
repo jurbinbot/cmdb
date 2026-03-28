@@ -64,12 +64,12 @@
 - [x] Commit: seed data
 
 ### Milestone 1.7 — Frontend Foundation
-- [ ] Scaffold React + Vite project
-- [ ] Set up React Router
-- [ ] Design system: CSS variables, dark theme, typography, card/button components
-- [ ] Sidebar navigation component
-- [ ] API client module (axios, base URL config)
-- [ ] Commit: frontend foundation
+- [x] Scaffold React + Vite project
+- [x] Set up React Router
+- [x] Design system: CSS variables, dark theme, typography, card/button components
+- [x] Sidebar navigation component
+- [x] API client module (axios, base URL config)
+- [x] Commit: frontend foundation
 
 ### Milestone 1.8 — Application Catalog UI
 - [ ] Applications list page (table with status badges, search, filter by team/type/status)
