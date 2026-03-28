@@ -72,11 +72,11 @@
 - [x] Commit: frontend foundation
 
 ### Milestone 1.8 — Application Catalog UI
-- [ ] Applications list page (table with status badges, search, filter by team/type/status)
-- [ ] Application detail page (overview, deployments table, endpoints, ownership)
-- [ ] Create/Edit Application modal form
-- [ ] Delete confirmation
-- [ ] Commit: application catalog UI
+- [x] Applications list page (table with status badges, search, filter by team/type/status)
+- [x] Application detail page (overview, deployments table, endpoints, ownership)
+- [x] Create/Edit Application modal form
+- [x] Delete confirmation
+- [x] Commit: application catalog UI
 
 ### Milestone 1.9 — Supporting Entity UIs
 - [ ] Environments page (list + CRUD)
