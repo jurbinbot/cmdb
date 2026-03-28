@@ -34,6 +34,18 @@ export const teams = {
   remove: (id) => api.delete(`/api/teams/${id}`),
 }
 
+// Relationships
+export const relationships = {
+  getAll: (params) => api.get('/api/relationships', { params }),
+  getById: (id) => api.get(`/api/relationships/${id}`),
+  create: (data) => api.post('/api/relationships', data),
+  update: (id, data) => api.put(`/api/relationships/${id}`, data),
+  remove: (id) => api.delete(`/api/relationships/${id}`),
+  getCiRelationships: (ciType, ciId) => api.get(`/api/ci/${ciType}/${ciId}/relationships`),
+  getDependencyTree: (appId) => api.get(`/api/applications/${appId}/dependency-tree`),
+  getImpact: (appId) => api.get(`/api/applications/${appId}/impact`),
+}
+
 // Audit
 export const audit = {
   getAll: (params) => api.get('/api/audit', { params }),

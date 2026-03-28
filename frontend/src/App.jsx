@@ -3,6 +3,7 @@ import Layout from './components/Layout'
 import Dashboard from './pages/Dashboard'
 import Applications from './pages/Applications'
 import AppDetail from './pages/AppDetail'
+import Topology from './pages/Topology'
 import Servers from './pages/Servers'
 import Environments from './pages/Environments'
 import Teams from './pages/Teams'
@@ -16,6 +17,7 @@ export default function App() {
           <Route index element={<Dashboard />} />
           <Route path="applications" element={<Applications />} />
           <Route path="applications/:id" element={<AppDetail />} />
+          <Route path="topology" element={<Topology />} />
           <Route path="servers" element={<Servers />} />
           <Route path="environments" element={<Environments />} />
           <Route path="teams" element={<Teams />} />

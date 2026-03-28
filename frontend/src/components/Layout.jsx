@@ -3,6 +3,7 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom'
 const navItems = [
   { to: '/', label: 'Dashboard', icon: '⊞' },
   { to: '/applications', label: 'Applications', icon: '◈' },
+  { to: '/topology', label: 'Topology', icon: '⬡' },
   { to: '/servers', label: 'Servers', icon: '▣' },
   { to: '/environments', label: 'Environments', icon: '◎' },
   { to: '/teams', label: 'Teams', icon: '◉' },
@@ -12,6 +13,7 @@ const navItems = [
 const pageTitles = {
   '/': 'Dashboard',
   '/applications': 'Applications',
+  '/topology': 'Topology',
   '/servers': 'Servers',
   '/environments': 'Environments',
   '/teams': 'Teams',

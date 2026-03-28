@@ -1,13 +1,35 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { applications } from '../api/index'
+import ReactFlow, {
+  Background,
+  Controls,
+  MarkerType,
+  useNodesState,
+  useEdgesState,
+} from 'reactflow'
+import dagre from 'dagre'
+import 'reactflow/dist/style.css'
+import { applications, relationships } from '../api/index'
 import AppModal from '../components/AppModal'
+import AppNode from '../components/graph/AppNode'
+
+const nodeTypes = { appNode: AppNode }
 
 const STATUS_BADGE = {
   active: 'badge-success',
   deprecated: 'badge-warning',
   decommissioned: 'badge-gray',
   planned: 'badge-info',
+}
+
+const REL_TYPE_COLORS = {
+  depends_on: '#6366f1',
+  hosted_on: '#06b6d4',
+  connects_to: '#8b5cf6',
+  owned_by: '#f59e0b',
+  deployed_on: '#10b981',
+  uses_database: '#ec4899',
+  exposes_endpoint: '#64748b',
 }
 
 function fmtDate(d) {
@@ -24,6 +46,114 @@ function InfoRow({ label, value }) {
   )
 }
 
+const NODE_W = 200
+const NODE_H = 70
+
+function layoutNodes(nodes, edges) {
+  const g = new dagre.graphlib.Graph()
+  g.setDefaultEdgeLabel(() => ({}))
+  g.setGraph({ rankdir: 'TB', nodesep: 50, ranksep: 70 })
+  nodes.forEach(n => g.setNode(n.id, { width: NODE_W, height: NODE_H }))
+  edges.forEach(e => g.setEdge(e.source, e.target))
+  dagre.layout(g)
+  return nodes.map(n => {
+    const pos = g.node(n.id)
+    return { ...n, position: { x: pos.x - NODE_W / 2, y: pos.y - NODE_H / 2 } }
+  })
+}
+
+function flattenTree(node, result = []) {
+  if (!node) return result
+  result.push({ id: node.id, name: node.name, type: node.type, relationship_type: node.relationship_type })
+  ;(node.children || []).forEach(c => flattenTree(c, result))
+  return result
+}
+
+function buildGraphFromTree(rootApp, tree) {
+  const nodesMap = {}
+  const edgesList = []
+
+  function addNode(id, label, status, app_type) {
+    if (!nodesMap[id]) {
+      nodesMap[id] = {
+        id,
+        type: 'appNode',
+        position: { x: 0, y: 0 },
+        data: { id, label, status, app_type },
+      }
+    }
+  }
+
+  function walk(node, parentId) {
+    addNode(node.id, node.name, node.status, node.type)
+    if (parentId) {
+      edgesList.push({
+        id: `${parentId}-${node.id}`,
+        source: parentId,
+        target: node.id,
+        label: (node.relationship_type || '').replace(/_/g, ' '),
+        markerEnd: { type: MarkerType.ArrowClosed },
+        style: { stroke: '#64748b', strokeWidth: 1.5 },
+        labelStyle: { fontSize: 10, fill: '#94a3b8' },
+        labelBgStyle: { fill: 'var(--bg-secondary)', fillOpacity: 0.9 },
+        labelBgPadding: [4, 2],
+        type: 'smoothstep',
+      })
+    }
+    ;(node.children || []).forEach(c => walk(c, node.id))
+  }
+
+  // Root node
+  addNode(rootApp.id, rootApp.name, rootApp.status, rootApp.app_type)
+  ;(tree.children || []).forEach(c => walk(c, rootApp.id))
+
+  return { nodes: Object.values(nodesMap), edges: edgesList }
+}
+
+function DependencyGraph({ app, depTree }) {
+  const [nodes, setNodes, onNodesChange] = useNodesState([])
+  const [edges, setEdges, onEdgesChange] = useEdgesState([])
+
+  useEffect(() => {
+    if (!depTree) return
+    const { nodes: rawNodes, edges: rawEdges } = buildGraphFromTree(app, depTree)
+    if (rawNodes.length <= 1 && rawEdges.length === 0) {
+      setNodes([])
+      setEdges([])
+      return
+    }
+    const laid = layoutNodes(rawNodes, rawEdges)
+    setNodes(laid)
+    setEdges(rawEdges)
+  }, [depTree, app])
+
+  if (!nodes.length) {
+    return (
+      <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+        No dependencies mapped yet — add relationships to see the dependency graph.
+      </div>
+    )
+  }
+
+  return (
+    <div style={{ height: 360, border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        nodeTypes={nodeTypes}
+        fitView
+        fitViewOptions={{ padding: 0.25 }}
+        minZoom={0.2}
+      >
+        <Background color="var(--border)" gap={20} />
+        <Controls />
+      </ReactFlow>
+    </div>
+  )
+}
+
 export default function AppDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -31,6 +161,9 @@ export default function AppDetail() {
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState('overview')
   const [showEdit, setShowEdit] = useState(false)
+  const [depTree, setDepTree] = useState(null)
+  const [impact, setImpact] = useState(null)
+  const [showRelModal, setShowRelModal] = useState(false)
 
   async function load() {
     setLoading(true)
@@ -44,12 +177,45 @@ export default function AppDetail() {
     }
   }
 
+  async function loadRelData() {
+    try {
+      const [treeRes, impactRes] = await Promise.all([
+        relationships.getDependencyTree(id),
+        relationships.getImpact(id),
+      ])
+      setDepTree(treeRes.data)
+      setImpact(impactRes.data)
+    } catch {
+      setDepTree(null)
+      setImpact([])
+    }
+  }
+
   useEffect(() => { load() }, [id])
+
+  useEffect(() => {
+    if (tab === 'dependencies' || tab === 'impact') {
+      loadRelData()
+    }
+  }, [tab, id])
 
   if (loading) return <div style={{ padding: '2rem', textAlign: 'center' }}><div className="spinner" style={{ margin: 'auto' }} /></div>
   if (!app) return <div className="card"><p style={{ color: 'var(--danger)' }}>Application not found.</p></div>
 
-  const tabs = ['Overview', 'Deployments', 'Endpoints', 'Ownership']
+  const tabs = ['Overview', 'Deployments', 'Endpoints', 'Ownership', 'Dependencies', 'Impact']
+
+  // Downstream: what this app depends on (flat from dep tree)
+  const downstream = depTree ? flattenTree(depTree).filter(n => n.id !== app.id) : []
+
+  // Upstream: what depends on this app (from impact endpoint)
+  const upstream = impact || []
+
+  // Group upstream by ci_type
+  const upstreamByType = {}
+  upstream.forEach(item => {
+    upstreamByType[item.ci_type] = upstreamByType[item.ci_type] || []
+    upstreamByType[item.ci_type].push(item)
+  })
 
   return (
     <div>
@@ -189,6 +355,116 @@ export default function AppDetail() {
         </div>
       )}
 
+      {tab === 'dependencies' && (
+        <div>
+          <div style={{ marginBottom: '1rem' }}>
+            <h3 style={{ fontSize: '15px', fontWeight: 600, marginBottom: '0.75rem' }}>Dependency Graph</h3>
+            {depTree === null ? (
+              <div style={{ padding: '2rem', textAlign: 'center' }}><div className="spinner" style={{ margin: 'auto' }} /></div>
+            ) : (
+              <DependencyGraph app={app} depTree={depTree} />
+            )}
+          </div>
+        </div>
+      )}
+
+      {tab === 'impact' && (
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h3 style={{ fontSize: '15px', fontWeight: 600 }}>Impact Analysis</h3>
+            <button className="btn btn-primary btn-sm" onClick={() => setShowRelModal(true)}>
+              + Add Relationship
+            </button>
+          </div>
+
+          {upstream.length === 0 && downstream.length === 0 ? (
+            <div className="card" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '2rem' }}>
+              No dependencies mapped yet — add relationships to see impact analysis.
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+              {/* Upstream: what depends ON this app */}
+              <div className="card">
+                <h4 style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.75rem' }}>
+                  Depends on this ({upstream.length})
+                </h4>
+                {upstream.length === 0 ? (
+                  <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Nothing depends on this application.</p>
+                ) : (
+                  Object.entries(upstreamByType).map(([ciType, items]) => (
+                    <div key={ciType} style={{ marginBottom: '0.75rem' }}>
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.4rem' }}>{ciType}</div>
+                      {items.map(item => (
+                        <div key={item.ci_id} style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          padding: '0.4rem 0.5rem',
+                          borderRadius: '4px',
+                          background: 'var(--bg-hover)',
+                          marginBottom: '0.25rem',
+                        }}>
+                          <span style={{ fontSize: '13px' }}>{item.name}</span>
+                          <span style={{
+                            fontSize: '10px',
+                            padding: '1px 6px',
+                            borderRadius: '4px',
+                            background: (REL_TYPE_COLORS[item.relationship_type] || '#64748b') + '33',
+                            color: REL_TYPE_COLORS[item.relationship_type] || '#94a3b8',
+                            border: `1px solid ${(REL_TYPE_COLORS[item.relationship_type] || '#64748b')}66`,
+                          }}>
+                            {(item.relationship_type || '').replace(/_/g, ' ')}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Downstream: what this app depends on */}
+              <div className="card">
+                <h4 style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.75rem' }}>
+                  This depends on ({downstream.length})
+                </h4>
+                {downstream.length === 0 ? (
+                  <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>This application has no mapped dependencies.</p>
+                ) : (
+                  downstream.map(item => (
+                    <div key={item.id} style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '0.4rem 0.5rem',
+                      borderRadius: '4px',
+                      background: 'var(--bg-hover)',
+                      marginBottom: '0.25rem',
+                    }}>
+                      <div>
+                        <span style={{ fontSize: '13px' }}>{item.name}</span>
+                        <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginLeft: '0.5rem' }}>{item.type}</span>
+                      </div>
+                      {item.relationship_type && (
+                        <span style={{
+                          fontSize: '10px',
+                          padding: '1px 6px',
+                          borderRadius: '4px',
+                          background: (REL_TYPE_COLORS[item.relationship_type] || '#64748b') + '33',
+                          color: REL_TYPE_COLORS[item.relationship_type] || '#94a3b8',
+                          border: `1px solid ${(REL_TYPE_COLORS[item.relationship_type] || '#64748b')}66`,
+                        }}>
+                          {item.relationship_type.replace(/_/g, ' ')}
+                        </span>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {showEdit && (
         <AppModal
           app={app}
@@ -196,6 +472,166 @@ export default function AppDetail() {
           onSaved={() => { setShowEdit(false); load() }}
         />
       )}
+
+      {showRelModal && (
+        <RelationshipModal
+          sourceApp={app}
+          onClose={() => setShowRelModal(false)}
+          onSaved={() => { setShowRelModal(false); loadRelData() }}
+        />
+      )}
+    </div>
+  )
+}
+
+// ── Relationship Modal (inline for AppDetail) ──────────────────────────────
+
+import { applications as applicationsApi, servers as serversApi } from '../api/index'
+
+const REL_TYPES = [
+  'depends_on', 'hosted_on', 'connects_to', 'owned_by', 'deployed_on', 'uses_database', 'exposes_endpoint',
+]
+const CI_TYPES = ['application', 'server', 'database']
+
+function RelationshipModal({ sourceApp, onClose, onSaved }) {
+  const [relType, setRelType] = useState('depends_on')
+  const [targetType, setTargetType] = useState('application')
+  const [targetId, setTargetId] = useState('')
+  const [description, setDescription] = useState('')
+  const [options, setOptions] = useState([])
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    async function loadOptions() {
+      try {
+        let res
+        if (targetType === 'application') {
+          res = await applications.getAll()
+          setOptions((res.data || []).filter(a => a.id !== sourceApp.id).map(a => ({ id: a.id, label: a.name })))
+        } else if (targetType === 'server') {
+          res = await serversApi.getAll()
+          setOptions((res.data || []).map(s => ({ id: s.id, label: s.hostname })))
+        } else if (targetType === 'database') {
+          const dbRes = await fetch('/api/databases').then(r => r.json()).catch(() => [])
+          setOptions((dbRes || []).map(d => ({ id: d.id, label: d.name })))
+        }
+      } catch {
+        setOptions([])
+      }
+    }
+    setTargetId('')
+    loadOptions()
+  }, [targetType, sourceApp.id])
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    if (!targetId) { setError('Please select a target CI.'); return }
+    setSaving(true)
+    setError(null)
+    try {
+      await relationships.create({
+        source_ci_type: 'application',
+        source_ci_id: sourceApp.id,
+        target_ci_type: targetType,
+        target_ci_id: targetId,
+        relationship_type: relType,
+        description: description || null,
+      })
+      onSaved()
+    } catch (err) {
+      setError(err?.response?.data?.detail || 'Failed to create relationship.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
+    }} onClick={e => { if (e.target === e.currentTarget) onClose() }}>
+      <div style={{
+        background: 'var(--bg-secondary)', border: '1px solid var(--border)',
+        borderRadius: '10px', padding: '1.5rem', width: 440, maxWidth: '95vw',
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+          <h3 style={{ fontSize: '16px', fontWeight: 700 }}>Add Relationship</h3>
+          <button className="btn btn-secondary btn-sm" onClick={onClose}>✕</button>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
+              Source
+            </label>
+            <div style={{ padding: '0.5rem 0.75rem', background: 'var(--bg-hover)', borderRadius: '6px', fontSize: '13px', color: 'var(--text-muted)' }}>
+              {sourceApp.name} (application)
+            </div>
+          </div>
+
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
+              Relationship Type
+            </label>
+            <select
+              value={relType}
+              onChange={e => setRelType(e.target.value)}
+              style={{ width: '100%', background: 'var(--bg-primary)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text-primary)', padding: '0.5rem 0.75rem', fontSize: '13px' }}
+            >
+              {REL_TYPES.map(t => <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>)}
+            </select>
+          </div>
+
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
+              Target CI Type
+            </label>
+            <select
+              value={targetType}
+              onChange={e => setTargetType(e.target.value)}
+              style={{ width: '100%', background: 'var(--bg-primary)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text-primary)', padding: '0.5rem 0.75rem', fontSize: '13px' }}
+            >
+              {CI_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+          </div>
+
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
+              Target CI
+            </label>
+            <select
+              value={targetId}
+              onChange={e => setTargetId(e.target.value)}
+              style={{ width: '100%', background: 'var(--bg-primary)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text-primary)', padding: '0.5rem 0.75rem', fontSize: '13px' }}
+            >
+              <option value="">Select {targetType}...</option>
+              {options.map(o => <option key={o.id} value={o.id}>{o.label}</option>)}
+            </select>
+          </div>
+
+          <div style={{ marginBottom: '1.25rem' }}>
+            <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
+              Description (optional)
+            </label>
+            <textarea
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              rows={2}
+              style={{ width: '100%', background: 'var(--bg-primary)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text-primary)', padding: '0.5rem 0.75rem', fontSize: '13px', resize: 'vertical', boxSizing: 'border-box' }}
+            />
+          </div>
+
+          {error && <div style={{ color: 'var(--danger)', fontSize: '13px', marginBottom: '0.75rem' }}>{error}</div>}
+
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+            <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
+            <button type="submit" className="btn btn-primary" disabled={saving}>
+              {saving ? 'Saving…' : 'Create Relationship'}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }
