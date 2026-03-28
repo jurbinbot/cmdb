@@ -25,19 +25,19 @@
 - [x] Commit: backend foundation
 
 ### Milestone 1.3 — Core Data Models
-- [ ] Application model (id, name, description, type, status, tier, repo_url, docs_url, created_at, updated_at)
-- [ ] Environment model (id, name, type: dev/staging/prod, description)
-- [ ] Deployment model (id, application_id, environment_id, version, deployed_at, deployed_by, ci_cd_url, notes)
-- [ ] Server model (id, hostname, ip_address, os, environment_id, role, status)
-- [ ] DatabaseInstance model (id, name, type: postgres/mysql/etc, host, port, environment_id)
-- [ ] Endpoint model (id, application_id, url, protocol, environment_id, is_public)
-- [ ] Team model (id, name, slack_channel, email)
-- [ ] Contact model (id, name, email, phone, team_id, role)
-- [ ] ApplicationOwnership model (application_id, team_id, ownership_type: primary/secondary)
-- [ ] CIRelationship model (id, source_ci_type, source_ci_id, target_ci_type, target_ci_id, relationship_type, description)
-- [ ] AuditLog model (id, ci_type, ci_id, action, changed_by, changed_at, before_json, after_json)
-- [ ] Create Alembic migration for all models
-- [ ] Commit: core data models
+- [x] Application model (id, name, description, type, status, tier, repo_url, docs_url, created_at, updated_at)
+- [x] Environment model (id, name, type: dev/staging/prod, description)
+- [x] Deployment model (id, application_id, environment_id, version, deployed_at, deployed_by, ci_cd_url, notes)
+- [x] Server model (id, hostname, ip_address, os, environment_id, role, status)
+- [x] DatabaseInstance model (id, name, type: postgres/mysql/etc, host, port, environment_id)
+- [x] Endpoint model (id, application_id, url, protocol, environment_id, is_public)
+- [x] Team model (id, name, slack_channel, email)
+- [x] Contact model (id, name, email, phone, team_id, role)
+- [x] ApplicationOwnership model (application_id, team_id, ownership_type: primary/secondary)
+- [x] CIRelationship model (id, source_ci_type, source_ci_id, target_ci_type, target_ci_id, relationship_type, description)
+- [x] AuditLog model (id, ci_type, ci_id, action, changed_by, changed_at, before_json, after_json)
+- [x] Create Alembic migration for all models
+- [x] Commit: core data models
 
 ### Milestone 1.4 — Core API (Applications)
 - [ ] Pydantic schemas for Application (Create, Update, Response)
