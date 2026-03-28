@@ -97,12 +97,12 @@
 - [x] Commit: relationship API
 
 ### Milestone 2.2 — Topology Graph UI
-- [ ] Integrate a graph visualization library (React Flow or Cytoscape.js)
-- [ ] Topology page: full dependency graph of all applications
-- [ ] Application-scoped graph: click app → show its dependency subgraph
-- [ ] Color nodes by status (up/down/warning from probe-aggregator)
-- [ ] Click node → navigate to app detail
-- [ ] Commit: topology graph UI
+- [x] Integrate a graph visualization library (React Flow or Cytoscape.js)
+- [x] Topology page: full dependency graph of all applications
+- [x] Application-scoped graph: click app → show its dependency subgraph
+- [x] Color nodes by status (up/down/warning from probe-aggregator)
+- [x] Click node → navigate to app detail
+- [x] Commit: topology graph UI
 
 ### Milestone 2.3 — Impact Analysis UI
 - [ ] Impact analysis panel on Application detail page
