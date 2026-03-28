@@ -90,11 +90,11 @@
 ## Phase 2 — Relationships & Topology
 
 ### Milestone 2.1 — Relationship API
-- [ ] CIRelationship CRUD (/api/relationships)
-- [ ] GET /api/ci/{type}/{id}/relationships — all relationships for a CI
-- [ ] GET /api/applications/{id}/dependency-tree — recursive graph query (CTE)
-- [ ] GET /api/applications/{id}/impact — what would be affected if this app went down
-- [ ] Commit: relationship API
+- [x] CIRelationship CRUD (/api/relationships)
+- [x] GET /api/ci/{type}/{id}/relationships — all relationships for a CI
+- [x] GET /api/applications/{id}/dependency-tree — recursive graph query (CTE)
+- [x] GET /api/applications/{id}/impact — what would be affected if this app went down
+- [x] Commit: relationship API
 
 ### Milestone 2.2 — Topology Graph UI
 - [ ] Integrate a graph visualization library (React Flow or Cytoscape.js)
